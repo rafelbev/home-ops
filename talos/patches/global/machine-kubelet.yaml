@@ -1,0 +1,7 @@
+machine:
+  kubelet:
+    extraConfig:
+      serializeImagePulls: false
+    nodeIP:
+      validSubnets:
+        - 172.20.17.0/25
