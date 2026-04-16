@@ -8,7 +8,7 @@ spec:
   releaseName: radarr-1614541747
   chart:
     spec:
-      chart: radarr # Assumed official chart name from repository linuxserver-charts
+      chart: radarr
       sourceRef:
         kind: HelmRepository
         name: linuxserver-charts 
@@ -36,12 +36,10 @@ spec:
     nodeSelector:
       kubernetes.io/hostname: k3os-9153
     livenessProbe:
-      exec:
-        command:
-          - /usr/bin/env
-          - bash
-          - -c
-          - "curl --fail localhost:7878/api/v3/system/status?apiKey=`IFS=\\\u003e \\u0026\\u0026 while read -d \\\\< E C; do if [[ $E = \\\"ApiKey\\\" ]]; then echo $C; fi; done \\u003c /config/config.xml`"
+      httpGet:
+        path: /api/v3/system/status
+        port: 7878
     readinessProbe:
-      tcpSocket:
+      httpGet:
+        path: /api/v3/system/status
         port: 7878
