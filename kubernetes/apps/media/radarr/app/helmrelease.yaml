@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: radarr-1614541747
+spec:
+  interval: 30m
+  timeZone: "Europe/Malta"
+  releaseName: radarr-1614541747
+  chart:
+    spec:
+      chart: radarr # Assumed official chart name from repository linuxserver-charts
+      sourceRef:
+        kind: HelmRepository
+        name: linuxserver-charts 
+  values:
+    image:
+      repository: linuxserver/radarr
+      tag: 6.0.4
+    env:
+      containerExtraEnv:
+        - name: PGID
+          value: "0"
+        - name: PUID
+          value: "0"
+        - name: TZ
+          value: Europe/Malta
+    persistence:
+      config:
+        enabled: true
+        type: pvc
+        existingClaim: radarr-1614541747-config
+      media:
+        enabled: true
+        type: pvc
+        existingClaim: media-pvc-v2
+    nodeSelector:
+      kubernetes.io/hostname: k3os-9153
+    livenessProbe:
+      exec:
+        command:
+          - /usr/bin/env
+          - bash
+          - -c
+          - "curl --fail localhost:7878/api/v3/system/status?apiKey=`IFS=\\\u003e \\u0026\\u0026 while read -d \\\\< E C; do if [[ $E = \\\"ApiKey\\\" ]]; then echo $C; fi; done \\u003c /config/config.xml`"
+    readinessProbe:
+      tcpSocket:
+        port: 7878
